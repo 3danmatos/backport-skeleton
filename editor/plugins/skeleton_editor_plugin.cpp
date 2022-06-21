@@ -387,13 +387,8 @@ void SkeletonEditor::create_physical_skeleton() {
 PhysicalBone *SkeletonEditor::create_physical_bone(int bone_id, int bone_child_id, const Vector<BoneInfo> &bones_infos) {
 	const Transform child_rest = skeleton->get_bone_rest(bone_child_id);
 
-<<<<<<< HEAD
-	real_t half_height(child_rest.origin.length() * 0.5);
-	real_t radius(half_height * 0.2);
-=======
 	const real_t half_height(child_rest.origin.length() * 0.5);
 	const real_t radius(half_height * 0.2);
->>>>>>> 12412594dd610ddaabf7d4519cdb1947a69b7a35
 
 	CapsuleShape *bone_shape_capsule = memnew(CapsuleShape);
 	bone_shape_capsule->set_height((half_height - radius) * 2);
@@ -411,11 +406,7 @@ PhysicalBone *SkeletonEditor::create_physical_bone(int bone_id, int bone_child_i
 	}
 
 	Transform body_transform;
-<<<<<<< HEAD
-	body_transform.set_look_at(Vector3(0, 0, 0), child_rest.origin, up);
-=======
 	body_transform.set_look_at(Vector3(0, 0, 0), child_rest.origin, Vector3(0, 1, 0));
->>>>>>> 12412594dd610ddaabf7d4519cdb1947a69b7a35
 	body_transform.origin = body_transform.basis.xform(Vector3(0, 0, -half_height));
 
 	Transform joint_transform;
@@ -429,10 +420,6 @@ PhysicalBone *SkeletonEditor::create_physical_bone(int bone_id, int bone_child_i
 	return physical_bone;
 }
 
-<<<<<<< HEAD
-void SkeletonEditor::edit(Skeleton *p_node) {
-	skeleton = p_node;
-=======
 Variant SkeletonEditor::get_drag_data_fw(const Point2 &p_point, Control *p_from) {
 	TreeItem *selected = joint_tree->get_selected();
 
@@ -458,7 +445,6 @@ Variant SkeletonEditor::get_drag_data_fw(const Point2 &p_point, Control *p_from)
 	drag_data["node"] = selected;
 
 	return drag_data;
->>>>>>> 12412594dd610ddaabf7d4519cdb1947a69b7a35
 }
 
 bool SkeletonEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const {
@@ -520,12 +506,6 @@ void SkeletonEditor::move_skeleton_bone(NodePath p_skeleton_path, int32_t p_sele
 	ur->commit_action();
 }
 
-<<<<<<< HEAD
-void SkeletonEditor::_node_removed(Node *p_node) {
-	if (p_node == skeleton) {
-		skeleton = nullptr;
-		options->hide();
-=======
 void SkeletonEditor::_joint_tree_selection_changed() {
 	TreeItem *selected = joint_tree->get_selected();
 	const String path = selected->get_metadata(0);
@@ -541,7 +521,6 @@ void SkeletonEditor::_joint_tree_selection_changed() {
 		pose_editor->set_visible(true);
 		rest_editor->set_visible(true);
 		custom_pose_editor->set_visible(true);
->>>>>>> 12412594dd610ddaabf7d4519cdb1947a69b7a35
 	}
 }
 
@@ -557,10 +536,6 @@ void SkeletonEditor::_update_properties() {
 		custom_pose_editor->_update_custom_pose_properties();
 }
 
-<<<<<<< HEAD
-SkeletonEditor::SkeletonEditor() {
-	skeleton = nullptr;
-=======
 void SkeletonEditor::update_joint_tree() {
 	joint_tree->clear();
 
@@ -603,7 +578,6 @@ void SkeletonEditor::create_editors() {
 	set_focus_mode(FOCUS_ALL);
 
 	// Create Top Menu Bar
->>>>>>> 12412594dd610ddaabf7d4519cdb1947a69b7a35
 	options = memnew(MenuButton);
 	SpatialEditor::get_singleton()->add_control_to_menu_panel(options);
 
@@ -696,14 +670,6 @@ void SkeletonEditor::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("move_skeleton_bone"), &SkeletonEditor::move_skeleton_bone);
 }
 
-<<<<<<< HEAD
-void SkeletonEditorPlugin::make_visible(bool p_visible) {
-	if (p_visible) {
-		skeleton_editor->options->show();
-	} else {
-		skeleton_editor->options->hide();
-		skeleton_editor->edit(nullptr);
-=======
 SkeletonEditor::SkeletonEditor(EditorInspectorPluginSkeleton *e_plugin, EditorNode *p_editor, Skeleton *p_skeleton) :
 		editor(p_editor),
 		editor_plugin(e_plugin),
@@ -713,7 +679,6 @@ SkeletonEditor::SkeletonEditor(EditorInspectorPluginSkeleton *e_plugin, EditorNo
 SkeletonEditor::~SkeletonEditor() {
 	if (options) {
 		SpatialEditor::get_singleton()->remove_control_from_menu_panel(options);
->>>>>>> 12412594dd610ddaabf7d4519cdb1947a69b7a35
 	}
 }
 

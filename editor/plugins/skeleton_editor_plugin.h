@@ -129,12 +129,7 @@ class SkeletonEditor : public VBoxContainer {
 	struct BoneInfo {
 		PhysicalBone *physical_bone = nullptr;
 		Transform relative_rest; // Relative to skeleton node
-<<<<<<< HEAD
-		BoneInfo() :
-				physical_bone(nullptr) {}
-=======
 		BoneInfo() {}
->>>>>>> 12412594dd610ddaabf7d4519cdb1947a69b7a35
 	};
 
 	EditorNode *editor;
@@ -188,15 +183,10 @@ public:
 	~SkeletonEditor();
 };
 
-<<<<<<< HEAD
-class SkeletonEditorPlugin : public EditorPlugin {
-	GDCLASS(SkeletonEditorPlugin, EditorPlugin);
-=======
 class EditorInspectorPluginSkeleton : public EditorInspectorPlugin {
 	GDCLASS(EditorInspectorPluginSkeleton, EditorInspectorPlugin);
 
 	friend class SkeletonEditorPlugin;
->>>>>>> 12412594dd610ddaabf7d4519cdb1947a69b7a35
 
 	EditorNode *editor;
 
