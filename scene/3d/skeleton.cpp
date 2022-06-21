@@ -159,15 +159,6 @@ bool Skeleton::_get(const StringName &p_path, Variant &r_ret) const {
 }
 void Skeleton::_get_property_list(List<PropertyInfo> *p_list) const {
 	for (int i = 0; i < bones.size(); i++) {
-<<<<<<< HEAD
-		const String prep = vformat("%s/%d/", PNAME("bones"), i);
-		p_list->push_back(PropertyInfo(Variant::STRING, prep + PNAME("name")));
-		p_list->push_back(PropertyInfo(Variant::INT, prep + PNAME("parent"), PROPERTY_HINT_RANGE, "-1," + itos(bones.size() - 1) + ",1"));
-		p_list->push_back(PropertyInfo(Variant::TRANSFORM, prep + PNAME("rest")));
-		p_list->push_back(PropertyInfo(Variant::BOOL, prep + PNAME("enabled")));
-		p_list->push_back(PropertyInfo(Variant::TRANSFORM, prep + PNAME("pose"), PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR));
-		p_list->push_back(PropertyInfo(Variant::ARRAY, prep + PNAME("bound_children")));
-=======
 
 		String prep = "bones/" + itos(i) + "/";
 		p_list->push_back(PropertyInfo(Variant::STRING, prep + "name", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
@@ -176,7 +167,6 @@ void Skeleton::_get_property_list(List<PropertyInfo> *p_list) const {
 		p_list->push_back(PropertyInfo(Variant::BOOL, prep + "enabled", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
 		p_list->push_back(PropertyInfo(Variant::TRANSFORM, prep + "pose", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
 		p_list->push_back(PropertyInfo(Variant::ARRAY, prep + "bound_children", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
->>>>>>> 12412594dd610ddaabf7d4519cdb1947a69b7a35
 	}
 }
 
@@ -618,14 +608,11 @@ int Skeleton::get_process_order(int p_idx) {
 	return process_order[p_idx];
 }
 
-<<<<<<< HEAD
-=======
 Vector<int> Skeleton::get_bone_process_orders() {
 	_update_process_order();
 	return process_order;
 }
 
->>>>>>> 12412594dd610ddaabf7d4519cdb1947a69b7a35
 void Skeleton::localize_rests() {
 	_update_process_order();
 
@@ -851,10 +838,7 @@ Ref<SkinReference> Skeleton::register_skin(const Ref<Skin> &p_skin) {
 }
 
 void Skeleton::_bind_methods() {
-<<<<<<< HEAD
-=======
 	ClassDB::bind_method(D_METHOD("get_bone_process_orders"), &Skeleton::get_bone_process_orders);
->>>>>>> 12412594dd610ddaabf7d4519cdb1947a69b7a35
 	ClassDB::bind_method(D_METHOD("add_bone", "name"), &Skeleton::add_bone);
 	ClassDB::bind_method(D_METHOD("find_bone", "name"), &Skeleton::find_bone);
 	ClassDB::bind_method(D_METHOD("get_bone_name", "bone_idx"), &Skeleton::get_bone_name);
