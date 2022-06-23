@@ -33,6 +33,7 @@
 
 #include "core/rid.h"
 #include "scene/3d/spatial.h"
+#include "scene/resources/skeleton_modification.h"
 #include "scene/resources/skin.h"
 
 #ifndef _3D_DISABLED
@@ -97,13 +98,23 @@ private:
 		bool global_pose_override_reset;
 		Transform global_pose_override;
 
-#ifndef _3D_DISABLED
+// #ifndef _3D_DISABLED
 		PhysicalBone *physical_bone;
 		PhysicalBone *cache_parent_physical_bone;
-#endif // _3D_DISABLED
+// #endif // _3D_DISABLED
 
-		List<uint32_t> nodes_bound;
+		List<uint32_t> nodes_bound; // Check if is needed
+		real_t local_pose_override_amount;
+		bool local_pose_override_reset;
+		Transform local_pose_override;
 
+		Vector<int> child_bones;
+
+		// The forward direction vector and rest bone forward axis are cached because they do not change
+		// 99% of the time, but recalculating them can be expensive on models with many bones.
+		Vector3 rest_bone_forward_vector;
+		int rest_bone_forward_axis = -1;
+		
 		Bone() {
 			parent = -1;
 			enabled = true;
@@ -115,12 +126,20 @@ private:
 			physical_bone = nullptr;
 			cache_parent_physical_bone = nullptr;
 #endif // _3D_DISABLED
+			local_pose_override_amount = 0;
+			local_pose_override_reset = false;
+			child_bones = Vector<int>();
+
+			rest_bone_forward_vector = Vector3(0, 0, 0);
+			rest_bone_forward_axis = -1;
 		}
 	};
 
 	Vector<Bone> bones;
-	Vector<int> process_order;
+	Vector<int> process_order; // Check if is needed
 	bool process_order_dirty;
+
+	Vector<int> parentless_bones;
 
 	void _make_dirty();
 	bool dirty;
@@ -148,7 +167,20 @@ protected:
 	void _notification(int p_what);
 	static void _bind_methods();
 
+#ifndef _3D_DISABLED
+	Ref<SkeletonModificationStack> modification_stack;
+#endif // _3D_DISABLED
+
 public:
+	enum Bone_Forward_Axis {
+		BONE_AXIS_X_FORWARD = 0,
+		BONE_AXIS_Y_FORWARD = 1,
+		BONE_AXIS_Z_FORWARD = 2,
+		BONE_AXIS_NEGATIVE_X_FORWARD = 3,
+		BONE_AXIS_NEGATIVE_Y_FORWARD = 4,
+		BONE_AXIS_NEGATIVE_Z_FORWARD = 5,
+	};
+
 	enum {
 
 		NOTIFICATION_UPDATE_SKELETON = 50
@@ -167,6 +199,12 @@ public:
 
 	void unparent_bone_and_rest(int p_bone);
 
+	Vector<int> get_bone_children(int p_bone);
+	void set_bone_children(int p_bone, Vector<int> p_children);
+	void add_bone_child(int p_bone, int p_child);
+	void remove_bone_child(int p_bone, int p_child);
+	Vector<int> get_parentless_bones();
+
 	void set_bone_disable_rest(int p_bone, bool p_disable);
 	bool is_bone_rest_disabled(int p_bone) const;
 
@@ -178,6 +216,7 @@ public:
 	Transform get_bone_global_pose_no_override(int p_bone) const;
 
 	void clear_bones_global_pose_override();
+	Transform get_bone_global_pose_override(int p_bone) const;
 	void set_bone_global_pose_override(int p_bone, const Transform &p_pose, float p_amount, bool p_persistent = false);
 
 	void set_bone_enabled(int p_bone, bool p_enabled);
@@ -197,20 +236,58 @@ public:
 	void set_bone_custom_pose(int p_bone, const Transform &p_custom_pose);
 	Transform get_bone_custom_pose(int p_bone) const;
 
+	void clear_bones_local_pose_override();
+	Transform get_bone_local_pose_override(int p_bone) const;
+	void set_bone_local_pose_override(int p_bone, const Transform &p_pose, real_t p_amount, bool p_persistent = false);
+
 	void localize_rests(); // used for loaders and tools
-	int get_process_order(int p_idx);
-	Vector<int> get_bone_process_orders();
+	int get_process_order(int p_idx); 		// Check if is needed
+	Vector<int> get_bone_process_orders();  // Check if is needed
 
 	Ref<SkinReference> register_skin(const Ref<Skin> &p_skin);
 
+	void force_update_all_bone_transforms();
+	void force_update_bone_children_transforms(int bone_idx);
+
+	void update_bone_rest_forward_vector(int p_bone, bool p_force_update = false);
+	void update_bone_rest_forward_axis(int p_bone, bool p_force_update = false);
+	Vector3 get_bone_axis_forward_vector(int p_bone);
+	int get_bone_axis_forward_enum(int p_bone);
+
+	// Helper functions
+	Transform global_pose_to_world_transform(Transform p_global_pose);
+	Transform world_transform_to_global_pose(Transform p_transform);
+	Transform global_pose_to_local_pose(int p_bone_idx, Transform p_global_pose);
+	Transform local_pose_to_global_pose(int p_bone_idx, Transform p_local_pose);
+
+	Basis global_pose_z_forward_to_bone_forward(int p_bone_idx, Basis p_basis);
+
+	// Modifications
 #ifndef _3D_DISABLED
-	// Physical bone API
+	Ref<SkeletonModificationStack> get_modification_stack();
+	void set_modification_stack(Ref<SkeletonModificationStack> p_stack);
+	void execute_modifications(real_t p_delta, int p_execution_mode);
+#endif // _3D_DISABLED
+
+// Physical bone API
+
+	void set_animate_physical_bones(bool p_animate);
+	bool get_animate_physical_bones() const;
 
 	void bind_physical_bone_to_bone(int p_bone, PhysicalBone *p_physical_bone);
 	void unbind_physical_bone_from_bone(int p_bone);
 
 	PhysicalBone *get_physical_bone(int p_bone);
 	PhysicalBone *get_physical_bone_parent(int p_bone);
+
+// #ifndef _3D_DISABLED
+	// Physical bone API
+
+	// void bind_physical_bone_to_bone(int p_bone, PhysicalBone *p_physical_bone);
+	// void unbind_physical_bone_from_bone(int p_bone);
+
+	// PhysicalBone *get_physical_bone(int p_bone);
+	// PhysicalBone *get_physical_bone_parent(int p_bone);
 
 private:
 	/// This is a slow API os it's cached
@@ -222,7 +299,7 @@ public:
 	void physical_bones_start_simulation_on(const Array &p_bones);
 	void physical_bones_add_collision_exception(RID p_exception);
 	void physical_bones_remove_collision_exception(RID p_exception);
-#endif // _3D_DISABLED
+// #endif // _3D_DISABLED
 
 public:
 	Skeleton();

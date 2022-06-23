@@ -398,6 +398,103 @@ Transform Skeleton::get_bone_global_pose_no_override(int p_bone) const {
 	return bones[p_bone].pose_global_no_override;
 }
 
+
+void Skeleton::clear_bones_local_pose_override() {
+	for (int i = 0; i < bones.size(); i += 1) {
+		bones.write[i].local_pose_override_amount = 0;
+	}
+	_make_dirty();
+}
+
+void Skeleton::set_bone_local_pose_override(int p_bone, const Transform &p_pose, real_t p_amount, bool p_persistent) {
+	const int bone_size = bones.size();
+	ERR_FAIL_INDEX(p_bone, bone_size);
+	bones.write[p_bone].local_pose_override_amount = p_amount;
+	bones.write[p_bone].local_pose_override = p_pose;
+	bones.write[p_bone].local_pose_override_reset = !p_persistent;
+	_make_dirty();
+}
+
+
+Transform Skeleton::get_bone_local_pose_override(int p_bone) const {
+	const int bone_size = bones.size();
+	ERR_FAIL_INDEX_V(p_bone, bone_size, Transform());
+	return bones[p_bone].local_pose_override;
+}
+
+void Skeleton::update_bone_rest_forward_vector(int p_bone, bool p_force_update) {
+	const int bone_size = bones.size();
+	ERR_FAIL_INDEX(p_bone, bone_size);
+
+	if (bones[p_bone].rest_bone_forward_vector.length_squared() > 0 && p_force_update == false) {
+		update_bone_rest_forward_axis(p_bone, p_force_update);
+	}
+
+	// If it is a child/leaf bone...
+	if (get_bone_parent(p_bone) > 0) {
+		bones.write[p_bone].rest_bone_forward_vector = bones[p_bone].rest.origin.normalized();
+	} else {
+		// If it has children...
+		Vector<int> child_bones = get_bone_children(p_bone);
+		if (child_bones.size() > 0) {
+			Vector3 combined_child_dir = Vector3(0, 0, 0);
+			for (int i = 0; i < child_bones.size(); i++) {
+				combined_child_dir += bones[child_bones[i]].rest.origin.normalized();
+			}
+			combined_child_dir = combined_child_dir / child_bones.size();
+			bones.write[p_bone].rest_bone_forward_vector = combined_child_dir.normalized();
+		} else {
+			WARN_PRINT_ONCE("Cannot calculate forward direction for bone " + itos(p_bone));
+			WARN_PRINT_ONCE("Assuming direction of (0, 1, 0) for bone");
+			bones.write[p_bone].rest_bone_forward_vector = Vector3(0, 1, 0);
+		}
+	}
+	update_bone_rest_forward_axis(p_bone, p_force_update);
+}
+
+
+void Skeleton::update_bone_rest_forward_axis(int p_bone, bool p_force_update) {
+	const int bone_size = bones.size();
+	ERR_FAIL_INDEX(p_bone, bone_size);
+	if (bones[p_bone].rest_bone_forward_axis > -1 && p_force_update == false) {
+		return;
+	}
+
+	Vector3 forward_axis_absolute = bones[p_bone].rest_bone_forward_vector.abs();
+	if (forward_axis_absolute.x > forward_axis_absolute.y && forward_axis_absolute.x > forward_axis_absolute.z) {
+		if (bones[p_bone].rest_bone_forward_vector.x > 0) {
+			bones.write[p_bone].rest_bone_forward_axis = BONE_AXIS_X_FORWARD;
+		} else {
+			bones.write[p_bone].rest_bone_forward_axis = BONE_AXIS_NEGATIVE_X_FORWARD;
+		}
+	} else if (forward_axis_absolute.y > forward_axis_absolute.x && forward_axis_absolute.y > forward_axis_absolute.z) {
+		if (bones[p_bone].rest_bone_forward_vector.y > 0) {
+			bones.write[p_bone].rest_bone_forward_axis = BONE_AXIS_Y_FORWARD;
+		} else {
+			bones.write[p_bone].rest_bone_forward_axis = BONE_AXIS_NEGATIVE_Y_FORWARD;
+		}
+	} else {
+		if (bones[p_bone].rest_bone_forward_vector.z > 0) {
+			bones.write[p_bone].rest_bone_forward_axis = BONE_AXIS_Z_FORWARD;
+		} else {
+			bones.write[p_bone].rest_bone_forward_axis = BONE_AXIS_NEGATIVE_Z_FORWARD;
+		}
+	}
+}
+
+
+Vector3 Skeleton::get_bone_axis_forward_vector(int p_bone) {
+	const int bone_size = bones.size();
+	ERR_FAIL_INDEX_V(p_bone, bone_size, Vector3(0, 0, 0));
+	return bones[p_bone].rest_bone_forward_vector;
+}
+
+int Skeleton::get_bone_axis_forward_enum(int p_bone) {
+	const int bone_size = bones.size();
+	ERR_FAIL_INDEX_V(p_bone, bone_size, -1);
+	return bones[p_bone].rest_bone_forward_axis;
+}
+
 // skeleton creation api
 void Skeleton::add_bone(const String &p_name) {
 	ERR_FAIL_COND(p_name == "" || p_name.find(":") != -1 || p_name.find("/") != -1);
@@ -500,6 +597,15 @@ int Skeleton::get_bone_parent(int p_bone) const {
 	ERR_FAIL_INDEX_V(p_bone, bones.size(), -1);
 
 	return bones[p_bone].parent;
+}
+
+Vector<int> Skeleton::get_bone_children(int p_bone) {
+	ERR_FAIL_INDEX_V(p_bone, bones.size(), Vector<int>());
+	return bones[p_bone].child_bones;
+}
+
+Vector<int> Skeleton::get_parentless_bones() {
+	return parentless_bones;
 }
 
 void Skeleton::set_bone_rest(int p_bone, const Transform &p_rest) {
@@ -836,6 +942,203 @@ Ref<SkinReference> Skeleton::register_skin(const Ref<Skin> &p_skin) {
 
 	return skin_ref;
 }
+
+
+void Skeleton::force_update_all_bone_transforms() {
+	_update_process_order();
+
+	for (int i = 0; i < parentless_bones.size(); i++) {
+		force_update_bone_children_transforms(parentless_bones[i]);
+	}
+}
+
+void Skeleton::force_update_bone_children_transforms(int p_bone_idx) {
+	const int bone_size = bones.size();
+	ERR_FAIL_INDEX(p_bone_idx, bone_size);
+
+	Bone *bonesptr = bones.ptrw();
+	List<int> bones_to_process = List<int>();
+	bones_to_process.push_back(p_bone_idx);
+
+	while (bones_to_process.size() > 0) {
+		int current_bone_idx = bones_to_process[0];
+		bones_to_process.erase(current_bone_idx);
+
+		Bone &b = bonesptr[current_bone_idx];
+
+		if (b.disable_rest) {
+			if (b.enabled) {
+				Transform pose = b.pose;
+				if (b.custom_pose_enable) {
+					pose = b.custom_pose * pose;
+				}
+				if (b.parent >= 0) {
+					b.pose_global = bonesptr[b.parent].pose_global * pose;
+					b.pose_global_no_override = b.pose_global;
+				} else {
+					b.pose_global = pose;
+					b.pose_global_no_override = b.pose_global;
+				}
+			} else {
+				if (b.parent >= 0) {
+					b.pose_global = bonesptr[b.parent].pose_global;
+					b.pose_global_no_override = b.pose_global;
+				} else {
+					b.pose_global = Transform();
+					b.pose_global_no_override = b.pose_global;
+				}
+			}
+
+		} else {
+			if (b.enabled) {
+				Transform pose = b.pose;
+				if (b.custom_pose_enable) {
+					pose = b.custom_pose * pose;
+				}
+				if (b.parent >= 0) {
+					b.pose_global = bonesptr[b.parent].pose_global * (b.rest * pose);
+					b.pose_global_no_override = b.pose_global;
+				} else {
+					b.pose_global = b.rest * pose;
+					b.pose_global_no_override = b.pose_global;
+				}
+			} else {
+				if (b.parent >= 0) {
+					b.pose_global = bonesptr[b.parent].pose_global * b.rest;
+					b.pose_global_no_override = b.pose_global;
+				} else {
+					b.pose_global = b.rest;
+					b.pose_global_no_override = b.pose_global;
+				}
+			}
+		}
+
+		if (b.local_pose_override_amount >= CMP_EPSILON) {
+			Transform override_local_pose;
+			if (b.parent >= 0) {
+				override_local_pose = bonesptr[b.parent].pose_global * (b.rest * b.local_pose_override);
+			} else {
+				override_local_pose = (b.rest * b.local_pose_override);
+			}
+			b.pose_global = b.pose_global.interpolate_with(override_local_pose, b.local_pose_override_amount);
+		}
+
+		if (b.global_pose_override_amount >= CMP_EPSILON) {
+			b.pose_global = b.pose_global.interpolate_with(b.global_pose_override, b.global_pose_override_amount);
+		}
+
+		if (b.local_pose_override_reset) {
+			b.local_pose_override_amount = 0.0;
+		}
+		if (b.global_pose_override_reset) {
+			b.global_pose_override_amount = 0.0;
+		}
+
+		// Add the bone's children to the list of bones to be processed
+		int child_bone_size = b.child_bones.size();
+		for (int i = 0; i < child_bone_size; i++) {
+			bones_to_process.push_back(b.child_bones[i]);
+		}
+
+		emit_signal(SceneStringNames::get_singleton()->bone_pose_changed, current_bone_idx);
+	}
+}
+
+// helper functions
+
+Transform Skeleton::global_pose_to_world_transform(Transform p_global_pose) {
+	return get_global_transform() * p_global_pose;
+}
+
+Transform Skeleton::world_transform_to_global_pose(Transform p_world_transform) {
+	return get_global_transform().affine_inverse() * p_world_transform;
+}
+
+Transform Skeleton::global_pose_to_local_pose(int p_bone_idx, Transform p_global_pose) {
+	const int bone_size = bones.size();
+	ERR_FAIL_INDEX_V(p_bone_idx, bone_size, Transform());
+	if (bones[p_bone_idx].parent >= 0) {
+		int parent_bone_idx = bones[p_bone_idx].parent;
+		Transform conversion_transform = (bones[parent_bone_idx].pose_global * bones[p_bone_idx].rest);
+		return conversion_transform.affine_inverse() * p_global_pose;
+	} else {
+		return p_global_pose;
+	}
+}
+
+Transform Skeleton::local_pose_to_global_pose(int p_bone_idx, Transform p_local_pose) {
+	const int bone_size = bones.size();
+	ERR_FAIL_INDEX_V(p_bone_idx, bone_size, Transform());
+	if (bones[p_bone_idx].parent >= 0) {
+		int parent_bone_idx = bones[p_bone_idx].parent;
+		Transform conversion_transform = (bones[parent_bone_idx].pose_global * bones[p_bone_idx].rest);
+		return conversion_transform * p_local_pose;
+	} else {
+		return p_local_pose;
+	}
+}
+
+Basis Skeleton::global_pose_z_forward_to_bone_forward(int p_bone_idx, Basis p_basis) {
+	const int bone_size = bones.size();
+	ERR_FAIL_INDEX_V(p_bone_idx, bone_size, Basis());
+	Basis return_basis = p_basis;
+
+	if (bones[p_bone_idx].rest_bone_forward_axis < 0) {
+		update_bone_rest_forward_vector(p_bone_idx, true);
+	}
+
+	if (bones[p_bone_idx].rest_bone_forward_axis == BONE_AXIS_X_FORWARD) {
+		return_basis.rotate_local(Vector3(0, 1, 0), (Math_PI / 2.0));
+	} else if (bones[p_bone_idx].rest_bone_forward_axis == BONE_AXIS_NEGATIVE_X_FORWARD) {
+		return_basis.rotate_local(Vector3(0, 1, 0), -(Math_PI / 2.0));
+	} else if (bones[p_bone_idx].rest_bone_forward_axis == BONE_AXIS_Y_FORWARD) {
+		return_basis.rotate_local(Vector3(1, 0, 0), -(Math_PI / 2.0));
+	} else if (bones[p_bone_idx].rest_bone_forward_axis == BONE_AXIS_NEGATIVE_Y_FORWARD) {
+		return_basis.rotate_local(Vector3(1, 0, 0), (Math_PI / 2.0));
+	} else if (bones[p_bone_idx].rest_bone_forward_axis == BONE_AXIS_Z_FORWARD) {
+		// Do nothing!
+	} else if (bones[p_bone_idx].rest_bone_forward_axis == BONE_AXIS_NEGATIVE_Z_FORWARD) {
+		return_basis.rotate_local(Vector3(0, 0, 1), Math_PI);
+	}
+
+	return return_basis;
+}
+
+
+// Modifications
+
+#ifndef _3D_DISABLED
+
+void Skeleton::set_modification_stack(Ref<SkeletonModificationStack> p_stack) {
+	if (modification_stack.is_valid()) {
+		modification_stack->is_setup = false;
+		modification_stack->set_skeleton(nullptr);
+	}
+
+	modification_stack = p_stack;
+	if (modification_stack.is_valid()) {
+		modification_stack->set_skeleton(this);
+		modification_stack->setup();
+	}
+}
+Ref<SkeletonModificationStack> Skeleton::get_modification_stack() {
+	return modification_stack;
+}
+
+void Skeleton::execute_modifications(real_t p_delta, int p_execution_mode) {
+	if (!modification_stack.is_valid()) {
+		return;
+	}
+
+	// Needed to avoid the issue where the stack looses reference to the skeleton when the scene is saved.
+	if (modification_stack->skeleton != this) {
+		modification_stack->set_skeleton(this);
+	}
+
+	modification_stack->execute(p_delta, p_execution_mode);
+}
+
+#endif // _3D_DISABLED
 
 void Skeleton::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_bone_process_orders"), &Skeleton::get_bone_process_orders);

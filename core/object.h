@@ -574,6 +574,7 @@ public: //should be protected, but bug in clang++
 	_FORCE_INLINE_ static void register_custom_data_to_otdb(){};
 
 public:
+	void notify_property_list_changed();
 #ifdef TOOLS_ENABLED
 	_FORCE_INLINE_ void _change_notify(const char *p_property = "") {
 		_edited = true;

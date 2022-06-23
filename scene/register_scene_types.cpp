@@ -224,6 +224,8 @@
 #include "scene/resources/mesh_library.h"
 #include "scene/resources/occluder_shape.h"
 #include "scene/resources/occluder_shape_polygon.h"
+#include "scene/resources/skeleton_modification.h"
+#include "scene/resources/skeleton_modification_stack.h"
 #endif
 
 #include "modules/modules_enabled.gen.h" // For freetype.
@@ -511,6 +513,9 @@ void register_scene_types() {
 	ClassDB::register_class<NavigationMeshInstance>();
 	ClassDB::register_class<NavigationAgent>();
 	ClassDB::register_class<NavigationObstacle>();
+
+	ClassDB::register_class<SkeletonModificationStack>();
+	ClassDB::register_class<SkeletonModification>();
 
 	OS::get_singleton()->yield(); //may take time to init
 
