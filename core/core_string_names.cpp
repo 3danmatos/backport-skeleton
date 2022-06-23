@@ -49,6 +49,7 @@ CoreStringNames::CoreStringNames() :
 		_sections_unfolded(StaticCString::create("_sections_unfolded")),
 #endif
 		_custom_features(StaticCString::create("_custom_features")),
+		property_list_changed(StaticCString::create("property_list_changed")),
 		x(StaticCString::create("x")),
 		y(StaticCString::create("y")),
 		z(StaticCString::create("z")),

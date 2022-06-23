@@ -1663,6 +1663,10 @@ void Object::clear_internal_resource_paths() {
 	}
 }
 
+void Object::notify_property_list_changed() {
+	emit_signal(CoreStringNames::get_singleton()->property_list_changed);
+}
+
 void Object::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_class"), &Object::get_class);
 	ClassDB::bind_method(D_METHOD("is_class", "class"), &Object::is_class);

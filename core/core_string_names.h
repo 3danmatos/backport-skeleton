@@ -55,6 +55,7 @@ public:
 	StringName _meta;
 	StringName _script;
 	StringName script_changed;
+	StringName property_list_changed;
 	StringName ___pdcdata;
 	StringName __getvar;
 	StringName _iter_init;

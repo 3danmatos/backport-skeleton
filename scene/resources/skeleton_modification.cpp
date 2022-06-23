@@ -153,7 +153,7 @@ int SkeletonModification::get_execution_mode() const {
 
 
 void SkeletonModification::_bind_methods() {
-	BIND_VMETHOD(MethodInfo("_execute", PropertyInfo(Variant::FLOAT, "delta")));
+	BIND_VMETHOD(MethodInfo("_execute", PropertyInfo(Variant::REAL, "delta")));
 	BIND_VMETHOD(MethodInfo("_setup_modification", PropertyInfo(Variant::OBJECT, "modification_stack", PROPERTY_HINT_RESOURCE_TYPE, "SkeletonModificationStack3D")));
 
 	ClassDB::bind_method(D_METHOD("set_enabled", "enabled"), &SkeletonModification::set_enabled);

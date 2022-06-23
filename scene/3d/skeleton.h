@@ -34,6 +34,7 @@
 #include "core/rid.h"
 #include "scene/3d/spatial.h"
 #include "scene/resources/skeleton_modification.h"
+#include "scene/resources/skeleton_modification_stack.h"
 #include "scene/resources/skin.h"
 
 #ifndef _3D_DISABLED

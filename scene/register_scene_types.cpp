@@ -514,9 +514,6 @@ void register_scene_types() {
 	ClassDB::register_class<NavigationAgent>();
 	ClassDB::register_class<NavigationObstacle>();
 
-	ClassDB::register_class<SkeletonModificationStack>();
-	ClassDB::register_class<SkeletonModification>();
-
 	OS::get_singleton()->yield(); //may take time to init
 
 #endif
@@ -689,6 +686,9 @@ void register_scene_types() {
 	ClassDB::register_virtual_class<OccluderShape>();
 	ClassDB::register_class<OccluderShapeSphere>();
 	ClassDB::register_class<OccluderShapePolygon>();
+
+	ClassDB::register_class<SkeletonModificationStack>();
+	ClassDB::register_class<SkeletonModification>();
 
 	OS::get_singleton()->yield(); //may take time to init
 
