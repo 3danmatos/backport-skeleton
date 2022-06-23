@@ -34,6 +34,7 @@
 
 #include "core/project_settings.h"
 #include "scene/3d/physics_body.h"
+#include "scene/resources/skeleton_modification.h"
 #include "scene/resources/surface_tool.h"
 #include "scene/scene_string_names.h"
 
