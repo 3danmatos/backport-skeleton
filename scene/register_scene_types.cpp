@@ -225,7 +225,12 @@
 #include "scene/resources/occluder_shape.h"
 #include "scene/resources/occluder_shape_polygon.h"
 #include "scene/resources/skeleton_modification.h"
+#include "scene/resources/skeleton_modification_ccdik.h"
+#include "scene/resources/skeleton_modification_fabrik.h"
+#include "scene/resources/skeleton_modification_jiggle.h"
+#include "scene/resources/skeleton_modification_lookat.h"
 #include "scene/resources/skeleton_modification_stackholder.h"
+#include "scene/resources/skeleton_modification_twoboneik.h"
 #include "scene/resources/skeleton_modification_stack.h"
 #endif
 
@@ -690,6 +695,11 @@ void register_scene_types() {
 
 	ClassDB::register_class<SkeletonModificationStack>();
 	ClassDB::register_class<SkeletonModification>();
+	ClassDB::register_class<SkeletonModificationLookAt>();
+	ClassDB::register_class<SkeletonModificationCCDIK>();
+	ClassDB::register_class<SkeletonModificationFABRIK>();
+	ClassDB::register_class<SkeletonModificationJiggle>();
+	ClassDB::register_class<SkeletonModificationTwoBoneIK>();
 	ClassDB::register_class<SkeletonModificationStackHolder>();
 
 	OS::get_singleton()->yield(); //may take time to init
