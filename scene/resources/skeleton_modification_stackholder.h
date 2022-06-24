@@ -1,6 +1,5 @@
-
 /*************************************************************************/
-/*  skeleton_modification_stack.h                                        */
+/*  skeleton_modification_stackholder.h                               */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -29,65 +28,33 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef SKELETONMODIFICATIONSTACK_H
-#define SKELETONMODIFICATIONSTACK_H
-
-#include "core/local_vector.h"
 #include "scene/3d/skeleton.h"
+#include "scene/resources/skeleton_modification.h"
 
-class Skeleton;
-class SkeletonModification;
+#ifndef SKELETONMODIFICATIONSTACKHOLDER_H
+#define SKELETONMODIFICATIONSTACKHOLDER_H
 
-class SkeletonModificationStack : public Resource {
-	GDCLASS(SkeletonModificationStack, Resource);
-	friend class Skeleton;
-	friend class SkeletonModification;
+class SkeletonModificationStackHolder : public SkeletonModification {
+	GDCLASS(SkeletonModificationStackHolder, SkeletonModification);
 
 protected:
 	static void _bind_methods();
-	virtual void _get_property_list(List<PropertyInfo> *p_list) const;
-	virtual bool _set(const StringName &p_path, const Variant &p_value);
-	virtual bool _get(const StringName &p_path, Variant &r_ret) const;
-
+	bool _get(const StringName &p_path, Variant &r_ret) const;
+	bool _set(const StringName &p_path, const Variant &p_value);
+	void _get_property_list(List<PropertyInfo> *p_list) const;
 
 public:
-	Skeleton *skeleton = nullptr;
-	bool is_setup = false;
-	bool enabled = false;
-	real_t strength = 1.0;
+	Ref<SkeletonModificationStack> held_modification_stack;
 
-	enum EXECUTION_MODE {
-		execution_mode_process,
-		execution_mode_physics_process,
-	};
+	virtual void _execute(real_t p_delta) override;
+	virtual void _setup_modification(SkeletonModificationStack *p_stack) override;
 
-	LocalVector<Ref<SkeletonModification>> modifications = LocalVector<Ref<SkeletonModification>>();
-	int modifications_count = 0;
+	void set_held_modification_stack(Ref<SkeletonModificationStack> p_held_stack);
+	Ref<SkeletonModificationStack> get_held_modification_stack() const;
 
-	virtual void setup();
-	virtual void execute(real_t p_delta, int p_execution_mode);
+	SkeletonModificationStackHolder();
+	~SkeletonModificationStackHolder();
 
-	void enable_all_modifications(bool p_enable);
-	Ref<SkeletonModification> get_modification(int p_mod_idx) const;
-	void add_modification(Ref<SkeletonModification> p_mod);
-	void delete_modification(int p_mod_idx);
-	void set_modification(int p_mod_idx, Ref<SkeletonModification> p_mod);
-
-	void set_modification_count(int p_count);
-	int get_modification_count() const;
-
-	void set_skeleton(Skeleton *p_skeleton);
-	Skeleton *get_skeleton() const;
-
-	bool get_is_setup() const;
-
-	void set_enabled(bool p_enabled);
-	bool get_enabled() const;
-
-	void set_strength(real_t p_strength);
-	real_t get_strength() const;
-
-	SkeletonModificationStack();
 };
 
-#endif // SKELETONMODIFICATIONSTACK_H
+#endif //SKELETONMODIFICATIONSTACKHOLDER_H

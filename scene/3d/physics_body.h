@@ -647,15 +647,16 @@ public:
 	void apply_central_impulse(const Vector3 &p_impulse);
 	void apply_impulse(const Vector3 &p_pos, const Vector3 &p_impulse);
 
+	void reset_to_rest_position();
+	void _reset_physics_simulation_state();
+
 	PhysicalBone();
 	~PhysicalBone();
 
 private:
 	void update_bone_id();
 	void update_offset();
-	void reset_to_rest_position();
 
-	void _reset_physics_simulation_state();
 	void _reset_staticness_state();
 
 	void _start_physics_simulation();

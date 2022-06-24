@@ -5,8 +5,8 @@
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2021 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2021 Godot Engine contributors (cf. AUTHORS.md).   */
+/* Copyright (c) 2007-2022 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2022 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -32,7 +32,7 @@
 #include "scene/3d/skeleton.h"
 
 ///////////////////////////////////////
-// ModificationStack3D
+// ModificationStack
 ///////////////////////////////////////
 
 void SkeletonModificationStack::_get_property_list(List<PropertyInfo> *p_list) const {
@@ -40,7 +40,7 @@ void SkeletonModificationStack::_get_property_list(List<PropertyInfo> *p_list) c
 		p_list->push_back(
 				PropertyInfo(Variant::OBJECT, "modifications/" + itos(i),
 						PROPERTY_HINT_RESOURCE_TYPE,
-						"SkeletonModification3D",
+						"SkeletonModification",
                         PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_DO_NOT_SHARE_ON_DUPLICATE));
 						// PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_DEFERRED_SET_RESOURCE | PROPERTY_USAGE_DO_NOT_SHARE_ON_DUPLICATE));
 	}
@@ -82,7 +82,7 @@ void SkeletonModificationStack::setup() {
 			modifications[i]->_setup_modification(this);
 		}
 	} else {
-		WARN_PRINT("Cannot setup SkeletonModificationStack3D: no skeleton set!");
+		WARN_PRINT("Cannot setup SkeletonModificationStack: no skeleton set!");
 	}
 }
 

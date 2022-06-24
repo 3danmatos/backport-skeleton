@@ -38,6 +38,7 @@
 #include "scene/3d/light.h"
 #include "scene/3d/visual_instance.h"
 #include "scene/gui/panel_container.h"
+#include "scene/3d/skeleton.h"
 
 class Camera;
 class SpatialEditor;

@@ -398,12 +398,13 @@ PhysicalBone *SkeletonEditor::create_physical_bone(int bone_id, int bone_child_i
 	bone_shape->set_shape(bone_shape_capsule);
 
 	Transform capsule_transform;
+	capsule_transform.basis = Basis(Vector3(1, 0, 0), Vector3(0, 0, 1), Vector3(0, -1, 0));
 	bone_shape->set_transform(capsule_transform);
 
-	Vector3 up = Vector3(0, 1, 0);
-	if (up.cross(child_rest.origin).is_equal_approx(Vector3())) {
-		up = Vector3(0, 0, 1);
-	}
+	// Vector3 up = Vector3(0, 1, 0);
+	// if (up.cross(child_rest.origin).is_equal_approx(Vector3())) {
+	// 	up = Vector3(0, 0, 1);
+	// }
 
 	Transform body_transform;
 	body_transform.set_look_at(Vector3(0, 0, 0), child_rest.origin, Vector3(0, 1, 0));
@@ -548,23 +549,47 @@ void SkeletonEditor::update_joint_tree() {
 
 	items.insert(-1, root);
 
-	const Vector<int> &joint_porder = skeleton->get_bone_process_orders();
+	// const Vector<int> &joint_porder = skeleton->get_bone_process_orders();
 
 	Ref<Texture> bone_icon = get_icon("BoneAttachment", "EditorIcons");
 
-	for (int i = 0; i < joint_porder.size(); ++i) {
-		const int b_idx = joint_porder[i];
+	// for (int i = 0; i < joint_porder.size(); ++i) {
+	// 	const int b_idx = joint_porder[i];
 
-		const int p_idx = skeleton->get_bone_parent(b_idx);
-		TreeItem *p_item = items.find(p_idx)->get();
+	// 	const int p_idx = skeleton->get_bone_parent(b_idx);
+	// 	TreeItem *p_item = items.find(p_idx)->get();
 
-		TreeItem *joint_item = joint_tree->create_item(p_item);
-		items.insert(b_idx, joint_item);
+	// 	TreeItem *joint_item = joint_tree->create_item(p_item);
+	// 	items.insert(b_idx, joint_item);
 
-		joint_item->set_text(0, skeleton->get_bone_name(b_idx));
+	// 	joint_item->set_text(0, skeleton->get_bone_name(b_idx));
+	// 	joint_item->set_icon(0, bone_icon);
+	// 	joint_item->set_selectable(0, true);
+	// 	joint_item->set_metadata(0, "bones/" + itos(b_idx));
+	// }
+
+	Vector<int> bones_to_process = skeleton->get_parentless_bones();
+	while (bones_to_process.size() > 0 ) {
+		int current_bone_idx = bones_to_process[0];
+		bones_to_process.erase(current_bone_idx);
+
+		const int parent_idx = skeleton->get_bone_parent(current_bone_idx);
+		TreeItem *parent_item = items.find(parent_idx)->get();
+
+		TreeItem *joint_item = joint_tree->create_item(parent_item);
+		items.insert(current_bone_idx, joint_item);
+
+		joint_item->set_text(0, skeleton->get_bone_name(current_bone_idx));
 		joint_item->set_icon(0, bone_icon);
 		joint_item->set_selectable(0, true);
-		joint_item->set_metadata(0, "bones/" + itos(b_idx));
+		joint_item->set_metadata(0, "bones/" + itos(current_bone_idx));
+
+		// Add the bone's children to the list of bones to be processed
+		Vector<int> current_bone_child_bones = skeleton->get_bone_children(current_bone_idx);
+		int child_bone_size = current_bone_child_bones.size();
+		for (int i = 0; i < child_bone_size; i++) {
+			bones_to_process.push_back(current_bone_child_bones[i]);
+		}
 	}
 }
 

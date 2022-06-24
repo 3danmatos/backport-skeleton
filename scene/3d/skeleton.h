@@ -34,7 +34,6 @@
 #include "core/rid.h"
 #include "scene/3d/spatial.h"
 #include "scene/resources/skeleton_modification.h"
-#include "scene/resources/skeleton_modification_stack.h"
 #include "scene/resources/skin.h"
 
 #ifndef _3D_DISABLED
@@ -68,6 +67,8 @@ public:
 	~SkinReference();
 };
 
+class SkeletonModificationStack;
+
 class Skeleton : public Spatial {
 	GDCLASS(Skeleton, Spatial);
 
@@ -85,18 +86,18 @@ private:
 		int parent;
 		int sort_index; //used for re-sorting process order
 
-		bool disable_rest;
+		bool disable_rest = false;
 		Transform rest;
 
 		Transform pose;
 		Transform pose_global;
 		Transform pose_global_no_override;
 
-		bool custom_pose_enable;
+		bool custom_pose_enable = false;
 		Transform custom_pose;
 
-		float global_pose_override_amount;
-		bool global_pose_override_reset;
+		float global_pose_override_amount = 0.0;
+		bool global_pose_override_reset = false;
 		Transform global_pose_override;
 
 // #ifndef _3D_DISABLED
@@ -136,6 +137,7 @@ private:
 		}
 	};
 
+	bool animate_physical_bones = true;
 	Vector<Bone> bones;
 	Vector<int> process_order; // Check if is needed
 	bool process_order_dirty;
@@ -143,9 +145,9 @@ private:
 	Vector<int> parentless_bones;
 
 	void _make_dirty();
-	bool dirty;
+	bool dirty = false;
 
-	uint64_t version;
+	uint64_t version = 1;
 
 	// bind helpers
 	Array _get_bound_child_nodes_to_bone(int p_bone) const {
@@ -168,9 +170,9 @@ protected:
 	void _notification(int p_what);
 	static void _bind_methods();
 
-#ifndef _3D_DISABLED
+// #ifndef _3D_DISABLED
 	Ref<SkeletonModificationStack> modification_stack;
-#endif // _3D_DISABLED
+// #endif // _3D_DISABLED
 
 public:
 	enum Bone_Forward_Axis {
@@ -264,11 +266,11 @@ public:
 	Basis global_pose_z_forward_to_bone_forward(int p_bone_idx, Basis p_basis);
 
 	// Modifications
-#ifndef _3D_DISABLED
+// #ifndef _3D_DISABLED
 	Ref<SkeletonModificationStack> get_modification_stack();
 	void set_modification_stack(Ref<SkeletonModificationStack> p_stack);
 	void execute_modifications(real_t p_delta, int p_execution_mode);
-#endif // _3D_DISABLED
+// #endif // _3D_DISABLED
 
 // Physical bone API
 

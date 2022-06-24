@@ -6,8 +6,8 @@
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2021 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2021 Godot Engine contributors (cf. AUTHORS.md).   */
+/* Copyright (c) 2007-2022 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2022 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -154,7 +154,7 @@ int SkeletonModification::get_execution_mode() const {
 
 void SkeletonModification::_bind_methods() {
 	BIND_VMETHOD(MethodInfo("_execute", PropertyInfo(Variant::REAL, "delta")));
-	BIND_VMETHOD(MethodInfo("_setup_modification", PropertyInfo(Variant::OBJECT, "modification_stack", PROPERTY_HINT_RESOURCE_TYPE, "SkeletonModificationStack3D")));
+	BIND_VMETHOD(MethodInfo("_setup_modification", PropertyInfo(Variant::OBJECT, "modification_stack", PROPERTY_HINT_RESOURCE_TYPE, "SkeletonModificationStack")));
 
 	ClassDB::bind_method(D_METHOD("set_enabled", "enabled"), &SkeletonModification::set_enabled);
 	ClassDB::bind_method(D_METHOD("get_enabled"), &SkeletonModification::get_enabled);
