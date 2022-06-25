@@ -377,7 +377,7 @@ void SkeletonModificationFABRIK::set_fabrik_data_chain_length(int p_length) {
 	ERR_FAIL_COND(p_length < 0);
 	fabrik_data_chain.resize(p_length);
 	execution_error_found = false;
-	notify_property_list_changed();
+	_change_notify();
 }
 
 real_t SkeletonModificationFABRIK::get_chain_tolerance() {
@@ -416,7 +416,7 @@ void SkeletonModificationFABRIK::set_fabrik_joint_bone_name(int p_joint_idx, Str
 		}
 	}
 	execution_error_found = false;
-	notify_property_list_changed();
+	_change_notify();
 }
 
 
@@ -438,7 +438,7 @@ void SkeletonModificationFABRIK::set_fabrik_joint_bone_index(int p_joint_idx, in
 		}
 	}
 	execution_error_found = false;
-	notify_property_list_changed();
+	_change_notify();
 }
 
 real_t SkeletonModificationFABRIK::get_fabrik_joint_length(int p_joint_idx) const {
@@ -490,7 +490,7 @@ void SkeletonModificationFABRIK::set_fabrik_joint_auto_calculate_length(int p_jo
 	ERR_FAIL_INDEX(p_joint_idx, bone_chain_size);
 	fabrik_data_chain[p_joint_idx].auto_calculate_length = p_auto_calculate;
 	fabrik_joint_auto_calculate_length(p_joint_idx);
-	notify_property_list_changed();
+	_change_notify();
 }
 
 void SkeletonModificationFABRIK::fabrik_joint_auto_calculate_length(int p_joint_idx) {
@@ -534,7 +534,7 @@ void SkeletonModificationFABRIK::fabrik_joint_auto_calculate_length(int p_joint_
 		fabrik_data_chain[p_joint_idx].length = final_length / bone_children.size();
 	}
 	execution_error_found = false;
-	notify_property_list_changed();
+	_change_notify();
 }
 
 bool SkeletonModificationFABRIK::get_fabrik_joint_use_tip_node(int p_joint_idx) const {
@@ -547,7 +547,7 @@ void SkeletonModificationFABRIK::set_fabrik_joint_use_tip_node(int p_joint_idx, 
 	const int bone_chain_size = fabrik_data_chain.size();
 	ERR_FAIL_INDEX(p_joint_idx, bone_chain_size);
 	fabrik_data_chain[p_joint_idx].use_tip_node = p_use_tip_node;
-	notify_property_list_changed();
+	_change_notify();
 }
 
 NodePath SkeletonModificationFABRIK::get_fabrik_joint_tip_node(int p_joint_idx) const {

@@ -380,7 +380,7 @@ NodePath SkeletonModificationTwoBoneIK::get_target_node() const {
 
 void SkeletonModificationTwoBoneIK::set_use_tip_node(const bool p_use_tip_node) {
 	use_tip_node = p_use_tip_node;
-	notify_property_list_changed();
+	_change_notify();
 }
 
 bool SkeletonModificationTwoBoneIK::get_use_tip_node() const {
@@ -398,7 +398,7 @@ NodePath SkeletonModificationTwoBoneIK::get_tip_node() const {
 
 void SkeletonModificationTwoBoneIK::set_use_pole_node(const bool p_use_pole_node) {
 	use_pole_node = p_use_pole_node;
-	notify_property_list_changed();
+	_change_notify();
 }
 
 bool SkeletonModificationTwoBoneIK::get_use_pole_node() const {
@@ -419,7 +419,7 @@ void SkeletonModificationTwoBoneIK::set_auto_calculate_joint_length(bool p_calcu
 	if (p_calculate) {
 		calculate_joint_lengths();
 	}
-	notify_property_list_changed();
+	_change_notify();
 }
 
 bool SkeletonModificationTwoBoneIK::get_auto_calculate_joint_length() const {
@@ -475,7 +475,7 @@ void SkeletonModificationTwoBoneIK::set_joint_one_bone_name(String p_bone_name) 
 		joint_one_bone_idx = stack->skeleton->find_bone(p_bone_name);
 	}
 	execution_error_found = false;
-	notify_property_list_changed();
+	_change_notify();
 }
 
 String SkeletonModificationTwoBoneIK::get_joint_one_bone_name() const {
@@ -488,7 +488,7 @@ void SkeletonModificationTwoBoneIK::set_joint_one_bone_idx(int p_bone_idx) {
 		joint_one_bone_name = stack->skeleton->get_bone_name(p_bone_idx);
 	}
 	execution_error_found = false;
-	notify_property_list_changed();
+	_change_notify();
 }
 
 int SkeletonModificationTwoBoneIK::get_joint_one_bone_idx() const {
@@ -509,7 +509,7 @@ void SkeletonModificationTwoBoneIK::set_joint_two_bone_name(String p_bone_name) 
 		joint_two_bone_idx = stack->skeleton->find_bone(p_bone_name);
 	}
 	execution_error_found = false;
-	notify_property_list_changed();
+	_change_notify();
 }
 
 String SkeletonModificationTwoBoneIK::get_joint_two_bone_name() const {
@@ -522,7 +522,7 @@ void SkeletonModificationTwoBoneIK::set_joint_two_bone_idx(int p_bone_idx) {
 		joint_two_bone_name = stack->skeleton->get_bone_name(p_bone_idx);
 	}
 	execution_error_found = false;
-	notify_property_list_changed();
+	_change_notify();
 }
 
 int SkeletonModificationTwoBoneIK::get_joint_two_bone_idx() const {

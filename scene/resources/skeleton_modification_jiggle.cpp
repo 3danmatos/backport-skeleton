@@ -350,7 +350,7 @@ Vector3 SkeletonModificationJiggle::get_gravity() const {
 
 void SkeletonModificationJiggle::set_use_colliders(bool p_use_collider) {
 	use_colliders = p_use_collider;
-	notify_property_list_changed();
+	_change_notify();
 }
 
 bool SkeletonModificationJiggle::get_use_colliders() const {
@@ -374,7 +374,7 @@ void SkeletonModificationJiggle::set_jiggle_data_chain_length(int p_length) {
 	ERR_FAIL_COND(p_length < 0);
 	jiggle_data_chain.resize(p_length);
 	execution_error_found = false;
-	notify_property_list_changed();
+	_change_notify();
 }
 
 void SkeletonModificationJiggle::set_jiggle_joint_bone_name(int p_joint_idx, String p_name) {
@@ -386,7 +386,7 @@ void SkeletonModificationJiggle::set_jiggle_joint_bone_name(int p_joint_idx, Str
 		jiggle_data_chain[p_joint_idx].bone_idx = stack->skeleton->find_bone(p_name);
 	}
 	execution_error_found = false;
-	notify_property_list_changed();
+	_change_notify();
 }
 
 String SkeletonModificationJiggle::get_jiggle_joint_bone_name(int p_joint_idx) const {
@@ -413,7 +413,7 @@ void SkeletonModificationJiggle::set_jiggle_joint_bone_index(int p_joint_idx, in
 		}
 	}
 	execution_error_found = false;
-	notify_property_list_changed();
+	_change_notify();
 }
 
 void SkeletonModificationJiggle::set_jiggle_joint_override(int p_joint_idx, bool p_override) {
@@ -421,7 +421,7 @@ void SkeletonModificationJiggle::set_jiggle_joint_override(int p_joint_idx, bool
 	ERR_FAIL_INDEX(p_joint_idx, bone_chain_size);
 	jiggle_data_chain[p_joint_idx].override_defaults = p_override;
 	_update_jiggle_joint_data();
-	notify_property_list_changed();
+	_change_notify();
 }
 
 bool SkeletonModificationJiggle::get_jiggle_joint_override(int p_joint_idx) const {
@@ -473,7 +473,7 @@ void SkeletonModificationJiggle::set_jiggle_joint_use_gravity(int p_joint_idx, b
 	const int bone_chain_size = jiggle_data_chain.size();
 	ERR_FAIL_INDEX(p_joint_idx, bone_chain_size);
 	jiggle_data_chain[p_joint_idx].use_gravity = p_use_gravity;
-	notify_property_list_changed();
+	_change_notify();
 }
 
 bool SkeletonModificationJiggle::get_jiggle_joint_use_gravity(int p_joint_idx) const {

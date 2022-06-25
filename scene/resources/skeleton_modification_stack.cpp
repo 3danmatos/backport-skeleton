@@ -152,7 +152,8 @@ void SkeletonModificationStack::set_modification(int p_mod_idx, Ref<SkeletonModi
 
 void SkeletonModificationStack::set_modification_count(int p_count) {
 	modifications.resize(p_count);
-	notify_property_list_changed();
+	// notify_property_list_changed();
+	_change_notify();
 }
 
 int SkeletonModificationStack::get_modification_count() const {
@@ -219,6 +220,7 @@ void SkeletonModificationStack::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "enabled"), "set_enabled", "get_enabled");
 	ADD_PROPERTY(PropertyInfo(Variant::REAL, "strength", PROPERTY_HINT_RANGE, "0, 1, 0.001"), "set_strength", "get_strength");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "modification_count", PROPERTY_HINT_RANGE, "0, 100, 1"), "set_modification_count", "get_modification_count");
+	// ADD_GROUP("Modifications", "modifications");
 }
 
 SkeletonModificationStack::SkeletonModificationStack() {

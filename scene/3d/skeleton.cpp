@@ -172,12 +172,12 @@ void Skeleton::_get_property_list(List<PropertyInfo> *p_list) const {
 	}
 
 // #ifndef _3D_DISABLED
-	p_list->push_back(
-			PropertyInfo(Variant::OBJECT, "modification_stack",
-					PROPERTY_HINT_RESOURCE_TYPE,
-					"SkeletonModificationStack",
-					// PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_DO_NOT_SHARE_ON_DUPLICATE));
-					PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_DEFERRED_SET_RESOURCE | PROPERTY_USAGE_DO_NOT_SHARE_ON_DUPLICATE));
+	// p_list->push_back(
+	// 		PropertyInfo(Variant::OBJECT, "modification_stack",
+	// 				PROPERTY_HINT_RESOURCE_TYPE,
+	// 				"SkeletonModificationStack",
+	// 				PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_DO_NOT_SHARE_ON_DUPLICATE));
+					// PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_DEFERRED_SET_RESOURCE | PROPERTY_USAGE_DO_NOT_SHARE_ON_DUPLICATE));
 // #endif //_3D_DISABLED
 }
 
@@ -781,29 +781,29 @@ void Skeleton::localize_rests() {
 void Skeleton::set_animate_physical_bones(bool p_animate) {
 	animate_physical_bones = p_animate;
 
-	// bool sim = false;
-	// for (int i = 0; i < bones.size(); i += 1) {
-	// 	if (bones[i].physical_bone) {
-	// 		bones[i].physical_bone->_reset_physics_simulation_state();
-	// 		if (bones[i].physical_bone->is_simulating_physics()) {
-	// 			sim = true;
-	// 		}
-	// 	}
-	// }
-	// set_physics_process_internal(sim == false && p_animate);
+	bool sim = false;
+	for (int i = 0; i < bones.size(); i += 1) {
+		if (bones[i].physical_bone) {
+			bones[i].physical_bone->_reset_physics_simulation_state();
+			if (bones[i].physical_bone->is_simulating_physics()) {
+				sim = true;
+			}
+		}
+	}
+	set_physics_process_internal(sim == false && p_animate);
 
-	// if (_Engine::get_singleton()->is_editor_hint() == false) {
-	// 	bool sim = false;
-	// 	for (int i = 0; i < bones.size(); i += 1) {
-	// 		if (bones[i].physical_bone) {
-	// 			bones[i].physical_bone->_reset_physics_simulation_state();
-	// 			if (bones[i].physical_bone->is_simulating_physics()) {
-	// 				sim = true;
-	// 			}
-	// 		}
-	// 	}
-	// 	set_physics_process_internal(sim == false && p_animate);
-	// }
+	if (Engine::get_singleton()->is_editor_hint() == false) {
+		bool sim = false;
+		for (int i = 0; i < bones.size(); i += 1) {
+			if (bones[i].physical_bone) {
+				bones[i].physical_bone->_reset_physics_simulation_state();
+				if (bones[i].physical_bone->is_simulating_physics()) {
+					sim = true;
+				}
+			}
+		}
+		set_physics_process_internal(sim == false && p_animate);
+	}
 }
 
 bool Skeleton::get_animate_physical_bones() const {
@@ -1275,6 +1275,9 @@ void Skeleton::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("local_pose_to_global_pose", "bone_idx", "local_pose"), &Skeleton::local_pose_to_global_pose);
 	ClassDB::bind_method(D_METHOD("global_pose_z_forward_to_bone_forward", "bone_idx", "basis"), &Skeleton::global_pose_z_forward_to_bone_forward);
 
+	// ClassDB::bind_method(D_METHOD("set_show_rest_only", "enabled"), &Skeleton::set_show_rest_only);
+	// ClassDB::bind_method(D_METHOD("is_show_rest_only"), &Skeleton::is_show_rest_only);
+
 	ClassDB::bind_method(D_METHOD("set_animate_physical_bones"), &Skeleton::set_animate_physical_bones);
 	ClassDB::bind_method(D_METHOD("get_animate_physical_bones"), &Skeleton::get_animate_physical_bones);
 
@@ -1297,6 +1300,15 @@ void Skeleton::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_modification_stack"), &Skeleton::get_modification_stack);
 	ClassDB::bind_method(D_METHOD("execute_modifications", "delta", "execution_mode"), &Skeleton::execute_modifications);
 
+	// ADD_PROPERTY(PropertyInfo(Variant::BOOL, "emitting"), "set_emitting", "is_emitting");
+	// ADD_PROPERTY(PropertyInfo(Variant::BOOL, "show_rest_only"), "set_show_rest_only", "is_show_rest_only");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "animate_physical_bones"), "set_animate_physical_bones", "get_animate_physical_bones");
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "modification_stack", 
+					PROPERTY_HINT_RESOURCE_TYPE, "SkeletonModificationStack",
+					PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_DO_NOT_SHARE_ON_DUPLICATE),
+					"set_modification_stack", 
+					"get_modification_stack");
+	
 	ADD_SIGNAL(MethodInfo("skeleton_updated"));
 
 #ifdef TOOLS_ENABLED

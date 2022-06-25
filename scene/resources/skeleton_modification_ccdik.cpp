@@ -336,7 +336,7 @@ void SkeletonModificationCCDIK::set_ccdik_joint_bone_name(int p_joint_idx, Strin
 		}
 	}
 	execution_error_found = false;
-	notify_property_list_changed();
+	_change_notify();
 }
 
 int SkeletonModificationCCDIK::get_ccdik_joint_bone_index(int p_joint_idx) const {
@@ -357,7 +357,7 @@ void SkeletonModificationCCDIK::set_ccdik_joint_bone_index(int p_joint_idx, int 
 		}
 	}
 	execution_error_found = false;
-	notify_property_list_changed();
+	_change_notify();
 }
 
 int SkeletonModificationCCDIK::get_ccdik_joint_ccdik_axis(int p_joint_idx) const {
@@ -371,7 +371,7 @@ void SkeletonModificationCCDIK::set_ccdik_joint_ccdik_axis(int p_joint_idx, int 
 	ERR_FAIL_INDEX(p_joint_idx, bone_chain_size);
 	ERR_FAIL_COND_MSG(p_axis < 0, "CCDIK axis is out of range: The axis mode is too low!");
 	ccdik_data_chain[p_joint_idx].ccdik_axis = p_axis;
-	notify_property_list_changed();
+	_change_notify();
 }
 
 bool SkeletonModificationCCDIK::get_ccdik_joint_enable_constraint(int p_joint_idx) const {
@@ -384,7 +384,7 @@ void SkeletonModificationCCDIK::set_ccdik_joint_enable_constraint(int p_joint_id
 	const int bone_chain_size = ccdik_data_chain.size();
 	ERR_FAIL_INDEX(p_joint_idx, bone_chain_size);
 	ccdik_data_chain[p_joint_idx].enable_constraint = p_enable;
-	notify_property_list_changed();
+	_change_notify();
 }
 
 real_t SkeletonModificationCCDIK::get_ccdik_joint_constraint_angle_min(int p_joint_idx) const {
@@ -431,7 +431,7 @@ void SkeletonModificationCCDIK::set_ccdik_data_chain_length(int p_length) {
 	ERR_FAIL_COND(p_length < 0);
 	ccdik_data_chain.resize(p_length);
 	execution_error_found = false;
-	notify_property_list_changed();
+	_change_notify();
 }
 
 void SkeletonModificationCCDIK::_bind_methods() {

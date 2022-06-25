@@ -147,7 +147,7 @@ void SkeletonModificationLookAt::set_bone_name(String p_name) {
 		}
 	}
 	execution_error_found = false;
-	notify_property_list_changed();
+	_change_notify();
 }
 
 String SkeletonModificationLookAt::get_bone_name() const {
@@ -168,7 +168,7 @@ void SkeletonModificationLookAt::set_bone_index(int p_bone_idx) {
 		}
 	}
 	execution_error_found = false;
-	notify_property_list_changed();
+	_change_notify();
 }
 
 void SkeletonModificationLookAt::update_cache() {
@@ -217,7 +217,7 @@ bool SkeletonModificationLookAt::get_lock_rotation_to_plane() const {
 
 void SkeletonModificationLookAt::set_lock_rotation_to_plane(bool p_lock_rotation) {
 	lock_rotation_to_plane = p_lock_rotation;
-	notify_property_list_changed();
+	_change_notify();
 }
 
 int SkeletonModificationLookAt::get_lock_rotation_plane() const {

@@ -229,6 +229,8 @@ public:
 	void unbind_child_node_from_bone(int p_bone, Node *p_node);
 	void get_bound_child_nodes_to_bone(int p_bone, List<Node *> *p_bound) const;
 
+	// void set_show_rest_only(bool p_enabled);
+	// bool is_show_rest_only() const;
 	void clear_bones();
 
 	// posing api
