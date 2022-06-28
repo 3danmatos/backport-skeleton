@@ -108,6 +108,8 @@ private:
 
 		List<uint32_t> nodes_bound;
 
+		Vector<int> child_bones;
+
 		Bone() {
 			parent = -1;
 			enabled = true;
@@ -121,6 +123,7 @@ private:
 #endif // _3D_DISABLED
 			local_pose_override_amount = 0;
 			local_pose_override_reset = false;
+			child_bones = Vector<int>();
 		}
 	};
 
@@ -173,6 +176,11 @@ public:
 
 	void unparent_bone_and_rest(int p_bone);
 
+	Vector<int> get_bone_children(int p_bone);
+	void set_bone_children(int p_bone, Vector<int> p_children);
+	void add_bone_child(int p_bone, int p_child);
+	void remove_bone_child(int p_bone, int p_child);
+
 	void set_bone_disable_rest(int p_bone, bool p_disable);
 	bool is_bone_rest_disabled(int p_bone) const;
 
@@ -221,7 +229,7 @@ public:
 	Transform world_transform_to_global_pose(Transform p_transform);
 	Transform global_pose_to_local_pose(int p_bone_idx, Transform p_global_pose);
 	Transform local_pose_to_global_pose(int p_bone_idx, Transform p_local_pose);
-	
+
 #ifndef _3D_DISABLED
 	// Physical bone API
 

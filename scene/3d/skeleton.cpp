@@ -459,6 +459,47 @@ int Skeleton::get_bone_parent(int p_bone) const {
 	return bones[p_bone].parent;
 }
 
+Vector<int> Skeleton::get_bone_children(int p_bone) {
+	ERR_FAIL_INDEX_V(p_bone, bones.size(), Vector<int>());
+	return bones[p_bone].child_bones;
+}
+
+void Skeleton::set_bone_children(int p_bone, Vector<int> p_children) {
+	const int bone_size = bones.size();
+	ERR_FAIL_INDEX(p_bone, bone_size);
+	bones.write[p_bone].child_bones = p_children;
+
+	process_order_dirty = true;
+	// rest_dirty = true;
+	_make_dirty();
+}
+
+void Skeleton::add_bone_child(int p_bone, int p_child) {
+	const int bone_size = bones.size();
+	ERR_FAIL_INDEX(p_bone, bone_size);
+	bones.write[p_bone].child_bones.push_back(p_child);
+
+	process_order_dirty = true;
+	// rest_dirty = true;
+	_make_dirty();
+}
+
+void Skeleton::remove_bone_child(int p_bone, int p_child) {
+	const int bone_size = bones.size();
+	ERR_FAIL_INDEX(p_bone, bone_size);
+
+	int child_idx = bones[p_bone].child_bones.find(p_child);
+	if (child_idx >= 0) {
+		bones.write[p_bone].child_bones.remove(child_idx);
+	} else {
+		WARN_PRINT("Cannot remove child bone: Child bone not found.");
+	}
+
+	process_order_dirty = true;
+	// rest_dirty = true;
+	_make_dirty();
+}
+
 void Skeleton::set_bone_rest(int p_bone, const Transform &p_rest) {
 	ERR_FAIL_INDEX(p_bone, bones.size());
 
@@ -935,6 +976,11 @@ void Skeleton::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_bone_count"), &Skeleton::get_bone_count);
 
 	ClassDB::bind_method(D_METHOD("unparent_bone_and_rest", "bone_idx"), &Skeleton::unparent_bone_and_rest);
+
+	ClassDB::bind_method(D_METHOD("get_bone_children", "bone_idx"), &Skeleton::get_bone_children);
+	ClassDB::bind_method(D_METHOD("set_bone_children", "bone_idx", "bone_children"), &Skeleton::set_bone_children);
+	ClassDB::bind_method(D_METHOD("add_bone_child", "bone_idx", "child_bone_idx"), &Skeleton::add_bone_child);
+	ClassDB::bind_method(D_METHOD("remove_bone_child", "bone_idx", "child_bone_idx"), &Skeleton::remove_bone_child);
 
 	ClassDB::bind_method(D_METHOD("get_bone_rest", "bone_idx"), &Skeleton::get_bone_rest);
 	ClassDB::bind_method(D_METHOD("set_bone_rest", "bone_idx", "rest"), &Skeleton::set_bone_rest);
