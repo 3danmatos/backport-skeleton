@@ -102,6 +102,10 @@ private:
 		PhysicalBone *cache_parent_physical_bone;
 #endif // _3D_DISABLED
 
+		real_t local_pose_override_amount;
+		bool local_pose_override_reset;
+		Transform local_pose_override;
+
 		List<uint32_t> nodes_bound;
 
 		Bone() {
@@ -115,6 +119,8 @@ private:
 			physical_bone = nullptr;
 			cache_parent_physical_bone = nullptr;
 #endif // _3D_DISABLED
+			local_pose_override_amount = 0;
+			local_pose_override_reset = false;
 		}
 	};
 

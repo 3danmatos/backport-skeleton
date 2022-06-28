@@ -834,9 +834,24 @@ void Skeleton::force_update_bone_children_transforms(int p_bone_idx) {
 		}
 	}
 
+	if (b.local_pose_override_amount >= CMP_EPSILON) {
+			Transform override_local_pose;
+			if (b.parent >= 0) {
+				override_local_pose = bonesptr[b.parent].pose_global * b.local_pose_override;
+			} else {
+				override_local_pose = b.local_pose_override;
+			}
+			b.pose_global = b.pose_global.interpolate_with(override_local_pose, b.local_pose_override_amount);
+		}
+
 	if (b.global_pose_override_amount >= CMP_EPSILON) {
 		b.pose_global = b.pose_global.interpolate_with(b.global_pose_override, b.global_pose_override_amount);
 	}
+
+	if (b.local_pose_override_reset) {
+			b.local_pose_override_amount = 0.0;
+	}
+	
 	if (b.global_pose_override_reset) {
 		b.global_pose_override_amount = 0.0;
 	}
