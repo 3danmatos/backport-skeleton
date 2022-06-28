@@ -110,6 +110,11 @@ private:
 
 		Vector<int> child_bones;
 
+		// The forward direction vector and rest bone forward axis are cached because they do not change
+		// 99% of the time, but recalculating them can be expensive on models with many bones.
+		Vector3 rest_bone_forward_vector;
+		int rest_bone_forward_axis = -1;
+
 		Bone() {
 			parent = -1;
 			enabled = true;
@@ -124,6 +129,9 @@ private:
 			local_pose_override_amount = 0;
 			local_pose_override_reset = false;
 			child_bones = Vector<int>();
+
+			rest_bone_forward_vector = Vector3(0, 0, 0);
+			rest_bone_forward_axis = -1;
 		}
 	};
 
@@ -158,6 +166,15 @@ protected:
 	static void _bind_methods();
 
 public:
+	enum Bone_Forward_Axis {
+		BONE_AXIS_X_FORWARD = 0,
+		BONE_AXIS_Y_FORWARD = 1,
+		BONE_AXIS_Z_FORWARD = 2,
+		BONE_AXIS_NEGATIVE_X_FORWARD = 3,
+		BONE_AXIS_NEGATIVE_Y_FORWARD = 4,
+		BONE_AXIS_NEGATIVE_Z_FORWARD = 5,
+	};
+
 	enum {
 
 		NOTIFICATION_UPDATE_SKELETON = 50
@@ -224,11 +241,18 @@ public:
 	void force_update_all_bone_transforms();
 	void force_update_bone_children_transforms(int bone_idx);
 
+	void update_bone_rest_forward_vector(int p_bone, bool p_force_update = false);
+	void update_bone_rest_forward_axis(int p_bone, bool p_force_update = false);
+	Vector3 get_bone_axis_forward_vector(int p_bone);
+	int get_bone_axis_forward_enum(int p_bone);
+
 	// Helper functions
 	Transform global_pose_to_world_transform(Transform p_global_pose);
 	Transform world_transform_to_global_pose(Transform p_transform);
 	Transform global_pose_to_local_pose(int p_bone_idx, Transform p_global_pose);
 	Transform local_pose_to_global_pose(int p_bone_idx, Transform p_local_pose);
+
+	Basis global_pose_z_forward_to_bone_forward(int p_bone_idx, Basis p_basis);
 
 #ifndef _3D_DISABLED
 	// Physical bone API
