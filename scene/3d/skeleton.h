@@ -216,6 +216,12 @@ public:
 	void force_update_all_bone_transforms();
 	void force_update_bone_children_transforms(int bone_idx);
 
+	// Helper functions
+	Transform global_pose_to_world_transform(Transform p_global_pose);
+	Transform world_transform_to_global_pose(Transform p_transform);
+	Transform global_pose_to_local_pose(int p_bone_idx, Transform p_global_pose);
+	Transform local_pose_to_global_pose(int p_bone_idx, Transform p_local_pose);
+	
 #ifndef _3D_DISABLED
 	// Physical bone API
 

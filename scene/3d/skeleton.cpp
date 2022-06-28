@@ -887,6 +887,41 @@ void Skeleton::force_update_bone_children_transforms(int p_bone_idx) {
 	}
 }
 
+// helper functions
+
+Transform Skeleton::global_pose_to_world_transform(Transform p_global_pose) {
+	return get_global_transform() * p_global_pose;
+}
+
+Transform Skeleton::world_transform_to_global_pose(Transform p_world_transform) {
+	return get_global_transform().affine_inverse() * p_world_transform;
+}
+
+
+Transform Skeleton::global_pose_to_local_pose(int p_bone_idx, Transform p_global_pose) {
+	const int bone_size = bones.size();
+	ERR_FAIL_INDEX_V(p_bone_idx, bone_size, Transform());
+	if (bones[p_bone_idx].parent >= 0) {
+		int parent_bone_idx = bones[p_bone_idx].parent;
+		Transform conversion_transform = (bones[parent_bone_idx].pose_global * bones[p_bone_idx].rest);
+		return conversion_transform.affine_inverse() * p_global_pose;
+	} else {
+		return p_global_pose;
+	}
+}
+
+Transform Skeleton::local_pose_to_global_pose(int p_bone_idx, Transform p_local_pose) {
+	const int bone_size = bones.size();
+	ERR_FAIL_INDEX_V(p_bone_idx, bone_size, Transform());
+	if (bones[p_bone_idx].parent >= 0) {
+		int parent_bone_idx = bones[p_bone_idx].parent;
+		Transform conversion_transform = (bones[parent_bone_idx].pose_global * bones[p_bone_idx].rest);
+		return conversion_transform * p_local_pose;
+	} else {
+		return p_local_pose;
+	}
+}
+
 void Skeleton::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_bone_process_orders"), &Skeleton::get_bone_process_orders);
 	ClassDB::bind_method(D_METHOD("add_bone", "name"), &Skeleton::add_bone);
@@ -935,6 +970,11 @@ void Skeleton::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("force_update_all_bone_transforms"), &Skeleton::force_update_all_bone_transforms);
 	ClassDB::bind_method(D_METHOD("force_update_bone_child_transform", "bone_idx"), &Skeleton::force_update_bone_children_transforms);
 
+	// Helper functions
+	ClassDB::bind_method(D_METHOD("global_pose_to_world_transform", "global_pose"), &Skeleton::global_pose_to_world_transform);
+	ClassDB::bind_method(D_METHOD("world_transform_to_global_pose", "world_transform"), &Skeleton::world_transform_to_global_pose);
+	ClassDB::bind_method(D_METHOD("global_pose_to_local_pose", "bone_idx", "global_pose"), &Skeleton::global_pose_to_local_pose);
+	ClassDB::bind_method(D_METHOD("local_pose_to_global_pose", "bone_idx", "local_pose"), &Skeleton::local_pose_to_global_pose);
 
 #ifndef _3D_DISABLED
 
