@@ -33,6 +33,7 @@
 
 #include "core/rid.h"
 #include "scene/3d/spatial.h"
+#include "scene/resources/skeleton_modification.h"
 #include "scene/resources/skin.h"
 
 #ifndef _3D_DISABLED
@@ -65,6 +66,9 @@ public:
 	Ref<Skin> get_skin() const;
 	~SkinReference();
 };
+
+
+class SkeletonModificationStack;
 
 class Skeleton : public Spatial {
 	GDCLASS(Skeleton, Spatial);
@@ -165,6 +169,10 @@ protected:
 	void _notification(int p_what);
 	static void _bind_methods();
 
+#ifndef _3D_DISABLED
+	Ref<SkeletonModificationStack> modification_stack;
+#endif // _3D_DISABLED
+
 public:
 	enum Bone_Forward_Axis {
 		BONE_AXIS_X_FORWARD = 0,
@@ -253,6 +261,13 @@ public:
 	Transform local_pose_to_global_pose(int p_bone_idx, Transform p_local_pose);
 
 	Basis global_pose_z_forward_to_bone_forward(int p_bone_idx, Basis p_basis);
+
+	// Modifications
+#ifndef _3D_DISABLED
+	Ref<SkeletonModificationStack> get_modification_stack();
+	void set_modification_stack(Ref<SkeletonModificationStack> p_stack);
+	void execute_modifications(real_t p_delta, int p_execution_mode);
+#endif // _3D_DISABLED
 
 #ifndef _3D_DISABLED
 	// Physical bone API

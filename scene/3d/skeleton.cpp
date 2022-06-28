@@ -34,6 +34,7 @@
 
 #include "core/project_settings.h"
 #include "scene/3d/physics_body.h"
+#include "scene/resources/skeleton_modification.h"
 #include "scene/resources/surface_tool.h"
 #include "scene/scene_string_names.h"
 
@@ -299,6 +300,18 @@ void Skeleton::_notification(int p_what) {
 			emit_signal(SceneStringNames::get_singleton()->pose_updated);
 #endif // TOOLS_ENABLED
 		} break;
+
+#ifndef _3D_DISABLED
+		case NOTIFICATION_READY: {
+			set_physics_process_internal(true);
+			set_process_internal(true);
+
+			if (modification_stack.is_valid()) {
+				set_modification_stack(modification_stack);
+			}
+		} break;
+#endif // _3D_DISABLED
+
 	}
 }
 
@@ -1060,6 +1073,41 @@ Basis Skeleton::global_pose_z_forward_to_bone_forward(int p_bone_idx, Basis p_ba
 	return return_basis;
 }
 
+// Modifications
+
+#ifndef _3D_DISABLED
+
+void Skeleton::set_modification_stack(Ref<SkeletonModificationStack> p_stack) {
+	if (modification_stack.is_valid()) {
+		modification_stack->is_setup = false;
+		modification_stack->set_skeleton(nullptr);
+	}
+
+	modification_stack = p_stack;
+	if (modification_stack.is_valid()) {
+		modification_stack->set_skeleton(this);
+		modification_stack->setup();
+	}
+}
+Ref<SkeletonModificationStack> Skeleton::get_modification_stack() {
+	return modification_stack;
+}
+
+void Skeleton::execute_modifications(real_t p_delta, int p_execution_mode) {
+	if (!modification_stack.is_valid()) {
+		return;
+	}
+
+	// Needed to avoid the issue where the stack looses reference to the skeleton when the scene is saved.
+	if (modification_stack->skeleton != this) {
+		modification_stack->set_skeleton(this);
+	}
+
+	modification_stack->execute(p_delta, p_execution_mode);
+}
+
+#endif // _3D_DISABLED
+
 void Skeleton::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_bone_process_orders"), &Skeleton::get_bone_process_orders);
 	ClassDB::bind_method(D_METHOD("add_bone", "name"), &Skeleton::add_bone);
@@ -1119,6 +1167,8 @@ void Skeleton::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("global_pose_to_local_pose", "bone_idx", "global_pose"), &Skeleton::global_pose_to_local_pose);
 	ClassDB::bind_method(D_METHOD("local_pose_to_global_pose", "bone_idx", "local_pose"), &Skeleton::local_pose_to_global_pose);
 
+	ClassDB::bind_method(D_METHOD("global_pose_z_forward_to_bone_forward", "bone_idx", "basis"), &Skeleton::global_pose_z_forward_to_bone_forward);
+
 #ifndef _3D_DISABLED
 
 	ClassDB::bind_method(D_METHOD("physical_bones_stop_simulation"), &Skeleton::physical_bones_stop_simulation);
@@ -1127,6 +1177,17 @@ void Skeleton::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("physical_bones_remove_collision_exception", "exception"), &Skeleton::physical_bones_remove_collision_exception);
 
 #endif // _3D_DISABLED
+
+	// Modifications
+	ClassDB::bind_method(D_METHOD("set_modification_stack", "modification_stack"), &Skeleton::set_modification_stack);
+	ClassDB::bind_method(D_METHOD("get_modification_stack"), &Skeleton::get_modification_stack);
+	ClassDB::bind_method(D_METHOD("execute_modifications", "delta", "execution_mode"), &Skeleton::execute_modifications);
+
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "modification_stack", 
+					PROPERTY_HINT_RESOURCE_TYPE, "SkeletonModificationStack",
+					PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_DO_NOT_SHARE_ON_DUPLICATE),
+					"set_modification_stack", 
+					"get_modification_stack");
 
 	ADD_SIGNAL(MethodInfo("skeleton_updated"));
 
