@@ -333,6 +333,28 @@ Transform Skeleton::get_bone_global_pose_no_override(int p_bone) const {
 	return bones[p_bone].pose_global_no_override;
 }
 
+void Skeleton::clear_bones_local_pose_override() {
+	for (int i = 0; i < bones.size(); i += 1) {
+		bones.write[i].local_pose_override_amount = 0;
+	}
+	_make_dirty();
+}
+
+void Skeleton::set_bone_local_pose_override(int p_bone, const Transform &p_pose, real_t p_amount, bool p_persistent) {
+	ERR_FAIL_INDEX(p_bone, bones.size());
+	bones.write[p_bone].local_pose_override_amount = p_amount;
+	bones.write[p_bone].local_pose_override = p_pose;
+	bones.write[p_bone].local_pose_override_reset = !p_persistent;
+	_make_dirty();
+}
+
+
+Transform Skeleton::get_bone_local_pose_override(int p_bone) const {
+	ERR_FAIL_INDEX_V(p_bone, bones.size(), Transform());
+
+	return bones[p_bone].local_pose_override;
+}
+
 // skeleton creation api
 void Skeleton::add_bone(const String &p_name) {
 	ERR_FAIL_COND(p_name == "" || p_name.find(":") != -1 || p_name.find("/") != -1);
@@ -902,6 +924,10 @@ void Skeleton::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_bone_global_pose_override", "bone_idx", "pose", "amount", "persistent"), &Skeleton::set_bone_global_pose_override, DEFVAL(false));
 	ClassDB::bind_method(D_METHOD("get_bone_global_pose", "bone_idx"), &Skeleton::get_bone_global_pose);
 	ClassDB::bind_method(D_METHOD("get_bone_global_pose_no_override", "bone_idx"), &Skeleton::get_bone_global_pose_no_override);
+
+	ClassDB::bind_method(D_METHOD("clear_bones_local_pose_override"), &Skeleton::clear_bones_local_pose_override);
+	ClassDB::bind_method(D_METHOD("set_bone_local_pose_override", "bone_idx", "pose", "amount", "persistent"), &Skeleton::set_bone_local_pose_override, DEFVAL(false));
+	ClassDB::bind_method(D_METHOD("get_bone_local_pose_override", "bone_idx"), &Skeleton::get_bone_local_pose_override);
 
 	ClassDB::bind_method(D_METHOD("get_bone_custom_pose", "bone_idx"), &Skeleton::get_bone_custom_pose);
 	ClassDB::bind_method(D_METHOD("set_bone_custom_pose", "bone_idx", "custom_pose"), &Skeleton::set_bone_custom_pose);
