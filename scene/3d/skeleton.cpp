@@ -301,6 +301,12 @@ void Skeleton::_notification(int p_what) {
 #endif // TOOLS_ENABLED
 		} break;
 
+		case NOTIFICATION_INTERNAL_PROCESS: {
+			if (modification_stack.is_valid()) {
+				execute_modifications(get_process_delta_time(), SkeletonModificationStack::EXECUTION_MODE::execution_mode_process);
+			}
+		} break;
+
 #ifndef _3D_DISABLED
 		case NOTIFICATION_READY: {
 			set_physics_process_internal(true);
