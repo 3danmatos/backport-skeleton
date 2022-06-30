@@ -40,26 +40,13 @@ class BoneAttachment : public Spatial {
 	String bone_name;
 	int bone_idx = -1;
 
-	// bool override_pose = false;
-	// int override_mode = 0;
-	// bool _override_dirty = false;
-
-	// enum OVERRIDE_MODES {
-	// 	MODE_GLOBAL_POSE,
-	// 	MODE_LOCAL_POSE,
-	// };
-
 	void _check_bind();
 	void _check_unbind();
 
-	// void _transform_changed();
 	Skeleton *_get_skeleton();
 
 protected:
 	virtual void _validate_property(PropertyInfo &property) const;
-	// bool _get(const StringName &p_path, Variant &r_ret) const;
-	// bool _set(const StringName &p_path, const Variant &p_value);
-	// void _get_property_list(List<PropertyInfo> *p_list) const;
 	void _notification(int p_what);
 
 	static void _bind_methods();
@@ -70,11 +57,6 @@ public:
 
 	void set_bone_idx(const int &p_idx);
 	int get_bone_idx() const;
-
-	// void set_override_pose(bool p_override);
-	// bool get_override_pose() const;
-	// void set_override_mode(int p_mode);
-	// int get_override_mode() const;
 
 	BoneAttachment();
 };
