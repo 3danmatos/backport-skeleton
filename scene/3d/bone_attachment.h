@@ -38,12 +38,9 @@ class BoneAttachment : public Spatial {
 
 	bool bound;
 	String bone_name;
-	int bone_idx = -1;
 
 	void _check_bind();
 	void _check_unbind();
-
-	Skeleton *_get_skeleton();
 
 protected:
 	virtual void _validate_property(PropertyInfo &property) const;
@@ -54,9 +51,6 @@ protected:
 public:
 	void set_bone_name(const String &p_name);
 	String get_bone_name() const;
-
-	void set_bone_idx(const int &p_idx);
-	int get_bone_idx() const;
 
 	BoneAttachment();
 };
